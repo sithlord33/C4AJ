@@ -70,7 +70,7 @@ public class C4Dialog extends JDialog {
         newButton.setFocusPainted(false);
         newButton.addActionListener(this::newButtonClicked);
         content.add(buttons, BorderLayout.NORTH);
-        msgBar.setText(player.name() + "' turn.");
+        msgBar.setText(player.name() + "'s turn.");
         msgBar.setBorder(BorderFactory.createEmptyBorder(5,20,0,0));
         content.add(msgBar, BorderLayout.SOUTH);
         return content;
@@ -102,7 +102,7 @@ public class C4Dialog extends JDialog {
     /** Start a new game. */
     private void startNewGame() {
         board.clear();
-        showMessage(player.name() + "' turn.");
+        showMessage(player.name() + "'s turn.");
         repaint();
     }
     

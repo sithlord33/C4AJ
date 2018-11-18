@@ -1,18 +1,57 @@
 package c4.ext;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.awt.Color;
+import java.awt.Graphics;
 
 import c4.model.Player;
+import c4.base.BoardPanel;
+import c4.base.C4Dialog;
+import c4.base.ColorPlayer;
 
 public privileged aspect AddOpponent {
 
-    private List<Player> players;
-
-    private void C4Dialog.changeTurn(Player opponent){
+    private List<ColorPlayer> players;
+    private int count = 0;
+ 
+    public void C4Dialog.changeTurn(ColorPlayer opponent){
         player = opponent;
-        showMessage(player.name() + "s turn.");
+        showMessage(player.name() + "'s turn.");
         repaint();
     }
 
-    //Write your pointcuts, advices, fields, and methods...
+    pointcut addOpponent(C4Dialog d):
+    	call(void C4Dialog.configureUI()) && this(d);
+    
+    before(C4Dialog d): addOpponent(d){
+    	ColorPlayer player2 = new ColorPlayer("Red", Color.RED);
+    	players = new ArrayList<ColorPlayer>();
+    	players.add(0, d.player);
+    	players.add(1, player2);
+    }
+    
+    pointcut makeMove(C4Dialog d, int slot):
+    	execution(void C4Dialog.makeMove(int)) && this(d) && args(slot);
+    
+    before(C4Dialog d, int slot): makeMove(d, slot){
+    	if (count == 0){
+    		d.changeTurn(players.get(0));
+    		count = 1;
+    		//BoardPanel.drawDroppableCheckers(g);
+    	}
+    	else {
+    		d.changeTurn(players.get(1));
+    		count = 0;
+    		//BoardPanel.drawDroppableCheckers(g);
+    	}
+    }
+    
+    pointcut newGame(C4Dialog d):
+    	call(void C4Dialog.startNewGame()) && this(d);
+    
+    after(C4Dialog d): newGame(d){
+    	d.changeTurn(players.get(1));
+    	count = 0;
+    }
 }

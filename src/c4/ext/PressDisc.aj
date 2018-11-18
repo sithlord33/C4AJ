@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseListener;
 
 import c4.base.BoardPanel;
 
@@ -15,16 +16,17 @@ public privileged aspect PressDisc {
 	pointcut pressDisc(BoardPanel b):
 		execution(BoardPanel.new(..)) && this(b);
 	
-	after(BoardPanel b): pressDisc(b){
-		b.addMouseMotionListener(new MouseMotionAdapter() {
+	void around(BoardPanel b): pressDisc(b){
+		b.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseMoved(MouseEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				if (!b.board.isGameOver()) {
 					b.mouseSlot = b.locateSlot(e.getX(), e.getY());
 					b.repaint();
 				}
 			}
 		});
+		proceed(b);
 	}
 	
 	pointcut drawDisc(BoardPanel b, Graphics g):
@@ -32,8 +34,7 @@ public privileged aspect PressDisc {
 	
 	after(BoardPanel b, Graphics g): drawDisc(b, g){
 		if(b.mouseSlot >= 0 && !b.board.isSlotFull(b.mouseSlot)) {
-			b.drawChecker(g, b.dropColor, b.mouseSlot, -1, 0);
-			b.drawChecker(g, Color.YELLOW, b.mouseSlot, -1, 10);
+			b.drawChecker(g, b.dropColor, b.mouseSlot, -1, 5);
 		}
 	}
 	

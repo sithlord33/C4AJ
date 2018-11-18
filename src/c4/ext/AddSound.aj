@@ -1,44 +1,42 @@
-package c4.ext;
+import c4.model.Board;
 
-import java.net.URL;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+import javax.sound.sampled.*;
+import java.io.IOException;
 
-import c4.model.Player;
+import c4.base.C4Dialog;
+import c4.model.*;
 
+public aspect AddSound {
 
-public privileged aspect AddSound {
-	
-	private Clip blue, red;
-	
-	URL blueURL = getClass().getResource("/click.wav");
-	URL redURL = getClass().getResource("/boing.wav");
-	
-	pointcut move(int slot, Player player):
-		call(void C4Dialog.makeMove(int)) && args(slot) && target(player);
-	
-	void around():
-		call(void C4Dialog.makeMove(int)) && args(slot) && target(player){
-		try {
-			AudioInputStream blueIS = AudioSystem.getAudioInputStream(blueURL);
-			blue = AudioSystem.getClip();
-			blue.open(blueIS);
-			
-			AudioInputStream redIS = AudioSystem.getAudioInputStream(redURL);
-			red = AudioSystem.getClip();
-			red.open(redIS);
-		}
-		catch(Exception e) {
-			System.out.println("failed to get audio clips");
-		}
-		
-		blue.start();
-		blue.setMicrosecondPosition(0);
-	}
-	
-	
-	
-	
+   private static final String SOUND_DIR = "/sound/";
 
+   public static void playAudio(String filename) {
+       try {
+           AudioInputStream audioIn = AudioSystem.getAudioInputStream(
+                   AddSound.class.getResource(SOUND_DIR + filename));
+           Clip clip = AudioSystem.getClip();
+           clip.open(audioIn);
+           clip.start();
+       } catch (UnsupportedAudioFileException
+               | IOException | LineUnavailableException e) {
+           e.printStackTrace();
+       }
+   }
+
+   pointcut makeMove(int slot, Player p):
+           execution(int Board.dropInSlot(int , Player)) && args(slot, p);
+
+   after(int slot, Player p): makeMove(slot, p) {
+       if(p.name().equals("Blue"))
+           playAudio("click.wav");
+       else
+           playAudio("boing.wav");
+   }
+   
+   pointcut newGame(C4Dialog d):
+	   call(void C4Dialog.startNewGame()) && this(d);
+   
+   after(C4Dialog d): newGame(d){
+	   playAudio("applause.wav");
+   }
 }

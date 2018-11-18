@@ -14,11 +14,17 @@ public privileged aspect AddOpponent {
 
     private List<ColorPlayer> players;
     private int count = 0;
+    private BoardPanel C4Dialog.panel;
  
     public void C4Dialog.changeTurn(ColorPlayer opponent){
         player = opponent;
         showMessage(player.name() + "'s turn.");
         repaint();
+    }
+    
+    after(C4Dialog d) returning(BoardPanel b):
+    	call(BoardPanel.new(..)) && this(d){
+    	d.panel = b;
     }
 
     pointcut addOpponent(C4Dialog d):
@@ -31,27 +37,27 @@ public privileged aspect AddOpponent {
     	players.add(1, player2);
     }
     
-    pointcut makeMove(C4Dialog d, int slot):
-    	execution(void C4Dialog.makeMove(int)) && this(d) && args(slot);
+    pointcut makeMove(C4Dialog d):
+    	execution(void C4Dialog.makeMove(int)) && this(d);
     
-    before(C4Dialog d, int slot): makeMove(d, slot){
+    after(C4Dialog d): makeMove(d){
     	if (count == 0){
-    		d.changeTurn(players.get(0));
+    		d.changeTurn(players.get(1));
     		count = 1;
-    		//BoardPanel.drawDroppableCheckers(g);
     	}
     	else {
-    		d.changeTurn(players.get(1));
+    		d.changeTurn(players.get(0));
     		count = 0;
     		//BoardPanel.drawDroppableCheckers(g);
     	}
+    	d.panel.setDropColor(d.player.color());
     }
-    
+
     pointcut newGame(C4Dialog d):
     	call(void C4Dialog.startNewGame()) && this(d);
     
     after(C4Dialog d): newGame(d){
-    	d.changeTurn(players.get(1));
+    	d.changeTurn(players.get(0));
     	count = 0;
     }
 }

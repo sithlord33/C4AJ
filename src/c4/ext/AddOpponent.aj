@@ -1,7 +1,5 @@
 package c4.ext;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.awt.Color;
 
 import c4.base.BoardPanel;
@@ -10,13 +8,14 @@ import c4.base.ColorPlayer;
 
 public privileged aspect AddOpponent {
 
-    private List<ColorPlayer> players;
-    private int count = 0;
+    private ColorPlayer bluePlayer;
+    private ColorPlayer redPlayer;
+    private boolean turn = true;
     private BoardPanel C4Dialog.panel;
  
     public void C4Dialog.changeTurn(ColorPlayer opponent){
-        player = opponent;
-        showMessage(player.name() + "'s turn.");
+    	showMessage(player.name() + "'s turn");
+    	player = opponent;
         repaint();
     }
     
@@ -29,33 +28,33 @@ public privileged aspect AddOpponent {
     	call(void C4Dialog.configureUI()) && this(d);
     
     before(C4Dialog d): addOpponent(d){
-    	ColorPlayer player2 = new ColorPlayer("Red", Color.RED);
-    	players = new ArrayList<ColorPlayer>();
-    	players.add(0, d.player);
-    	players.add(1, player2);
+    	bluePlayer = d.player;
+    	redPlayer = new ColorPlayer("Red", Color.RED);
     }
     
     pointcut makeMove(C4Dialog d):
     	execution(void C4Dialog.makeMove(int)) && this(d);
     
-    after(C4Dialog d): makeMove(d){
-    	if (count == 0){
-    		d.changeTurn(players.get(1));
-    		count = 1;
+    before(C4Dialog d): makeMove(d){
+    	if (turn){
+    		d.panel.setDropColor(d.player.color());
+    		d.changeTurn(bluePlayer);
     	}
     	else {
-    		d.changeTurn(players.get(0));
-    		count = 0;
+    		d.panel.setDropColor(d.player.color());
+    		d.changeTurn(redPlayer);
     		//BoardPanel.drawDroppableCheckers(g);
     	}
-    	d.panel.setDropColor(d.player.color());
+    	turn = !turn;
     }
 
     pointcut newGame(C4Dialog d):
     	call(void C4Dialog.startNewGame()) && this(d);
     
     after(C4Dialog d): newGame(d){
-    	d.changeTurn(players.get(0));
-    	count = 0;
+    	d.player = new ColorPlayer("Blue", Color.BLUE);
+    	d.showMessage(d.player.name() + "'s turn");
+    	d.panel.setDropColor(d.player.color());
+    	turn = true;
     }
 }

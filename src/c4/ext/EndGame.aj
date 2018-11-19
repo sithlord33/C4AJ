@@ -25,6 +25,8 @@ public privileged aspect EndGame {
 		if(d.board.isWonBy(d.player)) {
 			d.showMessage(d.player.name() + " wins");
 		}
+		if(d.board.isFull())
+			d.showMessage("Draw");
 	}		
 
 }

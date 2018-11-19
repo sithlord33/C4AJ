@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="c4-aj" basedir="." default="jar">
+    <property name="ajrt.dir"   value="C:/Users/cheon/.p2/pool/plugins/"/>
+    <property name="ajrt.jar"   value="org.aspectj.runtime_1.9.2.201810151841.jar"/>
+    <property name="class.dir"  value="bin"/>
+    <property name="jar.file"   value="${ant.project.name}.jar"/>
+    <property name="main-class" value="c4.base.C4Dialog"/>
+
+    <target name="jar">
+        <jar destfile="${jar.file}" basedir="${class.dir}">
+            <zipfileset src="${ajrt.dir}/${ajrt.jar}" excludes="META-INF/*"/>
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+        </jar>
+      <echo message="Refesh the project folder to see the created jar file."/>
+    </target>
+</project>

@@ -6,7 +6,7 @@ import java.io.IOException;
 import c4.base.C4Dialog;
 import c4.model.*;
 
-public aspect AddSound {
+public privileged aspect AddSound {
 
    private static final String SOUND_DIR = "/sound/";
 
@@ -33,10 +33,12 @@ public aspect AddSound {
            playAudio("boing.wav");
    }
    
-   pointcut newGame(C4Dialog d):
-	   call(void C4Dialog.startNewGame()) && this(d);
-   
-   after(C4Dialog d): newGame(d){
-	   playAudio("applause.wav");
-   }
+   pointcut gameOver(C4Dialog d):	
+	   execution(void C4Dialog.makeMove(int)) &&this(d);
+	
+	after(C4Dialog d): gameOver(d){
+		if(d.board.isWonBy(d.player)) {
+			playAudio("applause.wav");
+		}
+	}
 }

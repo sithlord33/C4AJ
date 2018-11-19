@@ -3,9 +3,7 @@ package c4.ext;
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.Color;
-import java.awt.Graphics;
 
-import c4.model.Player;
 import c4.base.BoardPanel;
 import c4.base.C4Dialog;
 import c4.base.ColorPlayer;

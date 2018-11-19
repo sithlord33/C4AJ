@@ -34,7 +34,7 @@ public privileged aspect AddSound {
    }
    
    pointcut gameOver(C4Dialog d):	
-	   execution(void C4Dialog.makeMove(int)) &&this(d);
+	   execution(void C4Dialog.makeMove(int)) && this(d);
 	
 	after(C4Dialog d): gameOver(d){
 		if(d.board.isWonBy(d.player)) {
